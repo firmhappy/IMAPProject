@@ -1,5 +1,5 @@
 <resources>
 
     <string name="app_name">IMAP</string>
-
+    <string name="publish_b">发布</string>
 </resources>
