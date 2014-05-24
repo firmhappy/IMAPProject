@@ -13,7 +13,7 @@ public class IMapApplication extends Application {
 	private static IMapApplication mInstance = null;
 	public boolean m_bKeyRight = true;
 	BMapManager mBMapManager = null;
-	static boolean isRight = false;
+	//static boolean isRight = false;
 
 	@Override
 	public void onCreate() {

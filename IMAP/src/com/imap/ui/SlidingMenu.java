@@ -49,7 +49,6 @@ public class SlidingMenu extends RelativeLayout {
 	}
 
 	public void showRightView() {
-		IMapApplication.isRight = true;
 		mSlidingView.showRightView();
 	}
 
