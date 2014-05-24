@@ -102,9 +102,7 @@ public class SlidingView extends ViewGroup {
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
 		int menuWidth = mDetailView.getWidth();
 		int oldScrollX = getScrollX();
-		System.out.println(oldScrollX+":"+menuWidth);
 		if (oldScrollX == menuWidth) {
-			System.out.println("!!!!");
 				final int action = ev.getAction();
 				final float x = ev.getX();
 				final float y = ev.getY();
@@ -115,27 +113,9 @@ public class SlidingView extends ViewGroup {
 					mLastMotionX = x;
 					mLastMotionY = y;
 					mIsBeingDragged = false;
-					//
-					// float oldScrollX = getScrollX();
-					// Log.e("ad", "oldScroll == " + oldScrollX);
-					// Log.e("ad", "mLastMotionX == " + mLastMotionX);
-					// if (oldScrollX < 0 && mLastMotionX >
-					// mMenuView.getWidth())
-					// {//
-					// right
-					// Log.e("ad", "return ==left  isMenuOpen  true");
-					// return true;
-					// } else if (oldScrollX > 0 && mLastMotionX <
-					// mDetailView.getWidth()) { // left
-					// Log.e("ad", "return ==right  isMenuOpen  true");
-					// return true;
-					// }
-					//
-					// Log.e("ad", "onInterceptTouchEvent == ACTION_DOWN");
 					break;
 
 				case MotionEvent.ACTION_MOVE:
-					System.out.println("???");
 					final float dx = x - mLastMotionX;
 					final float xDiff = Math.abs(dx);
 					final float yDiff = Math.abs(y - mLastMotionY);
@@ -201,8 +181,6 @@ public class SlidingView extends ViewGroup {
 					} else if (scrollX < rightBound) {
 						scrollX = rightBound;
 					}
-					// mDetailView.setVisibility(View.INVISIBLE);
-					// mMenuView.setVisibility(View.VISIBLE);
 				} else if (deltaX > 0 && oldScrollX > 0) { // right view
 					final float rightBound = getDetailViewWidth();
 					final float leftBound = 0;
@@ -211,8 +189,6 @@ public class SlidingView extends ViewGroup {
 					} else if (scrollX > rightBound) {
 						scrollX = rightBound;
 					}
-					// mDetailView.setVisibility(View.VISIBLE);
-					// mMenuView.setVisibility(View.INVISIBLE);
 				}
 
 				scrollTo((int) scrollX, getScrollY());
