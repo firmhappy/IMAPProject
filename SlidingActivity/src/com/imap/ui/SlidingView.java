@@ -311,11 +311,13 @@ public class SlidingView extends ViewGroup {
 		int menuWidth = mDetailView.getWidth();
 		int oldScrollX = getScrollX();
 		if (oldScrollX == 0) {
+			IMapApplication.isRight = true;
 			smoothScrollTo(menuWidth);
 		} else if (oldScrollX == menuWidth) {
+			IMapApplication.isRight = false;
 			smoothScrollTo(-menuWidth);
 		}
-		IMapApplication.isRight = false;
+		
 	}
 
 	void smoothScrollTo(int dx) {
