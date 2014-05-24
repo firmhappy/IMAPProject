@@ -13,6 +13,7 @@ public class IMapApplication extends Application {
 	private static IMapApplication mInstance = null;
 	public boolean m_bKeyRight = true;
 	BMapManager mBMapManager = null;
+	static boolean isRight = false;
 
 	@Override
 	public void onCreate() {
@@ -61,7 +62,7 @@ public class IMapApplication extends Application {
 				// 授权Key错误：
 				Toast.makeText(
 						IMapApplication.getInstance().getApplicationContext(),
-						"请在 DemoApplication.java文件输入正确的授权Key,并检查您的网络连接是否正常！error: "
+						"请输入正确的授权Key,并检查您的网络连接是否正常！error: "
 								+ iError, Toast.LENGTH_LONG).show();
 				IMapApplication.getInstance().m_bKeyRight = false;
 			} else {

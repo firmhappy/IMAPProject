@@ -94,50 +94,52 @@ public class SlidingView extends ViewGroup {
 		}
 	}
 
-	private boolean mIsBeingDragged;
+	private boolean mIsBeingDragged = false;
 
 	private boolean mIsAlreadySetViewState = true;
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		if (IMapApplication.isRight) {
+			final int action = ev.getAction();
+			final float x = ev.getX();
+			final float y = ev.getY();
 
-		final int action = ev.getAction();
-		final float x = ev.getX();
-		final float y = ev.getY();
-
-		switch (action) {
-		case MotionEvent.ACTION_DOWN:
-			mIsAlreadySetViewState = false;
-			mLastMotionX = x;
-			mLastMotionY = y;
-			mIsBeingDragged = false;
-			//
-			// float oldScrollX = getScrollX();
-			// Log.e("ad", "oldScroll == " + oldScrollX);
-			// Log.e("ad", "mLastMotionX == " + mLastMotionX);
-			// if (oldScrollX < 0 && mLastMotionX > mMenuView.getWidth()) {//
-			// right
-			// Log.e("ad", "return ==left  isMenuOpen  true");
-			// return true;
-			// } else if (oldScrollX > 0 && mLastMotionX <
-			// mDetailView.getWidth()) { // left
-			// Log.e("ad", "return ==right  isMenuOpen  true");
-			// return true;
-			// }
-			//
-			// Log.e("ad", "onInterceptTouchEvent == ACTION_DOWN");
-			break;
-
-		case MotionEvent.ACTION_MOVE:
-			final float dx = x - mLastMotionX;
-			final float xDiff = Math.abs(dx);
-			final float yDiff = Math.abs(y - mLastMotionY);
-			if (xDiff > mTouchSlop && xDiff > yDiff) {
-				mIsBeingDragged = true;
+			switch (action) {
+			case MotionEvent.ACTION_DOWN:
+				mIsAlreadySetViewState = false;
 				mLastMotionX = x;
-			}
-			break;
+				mLastMotionY = y;
+				mIsBeingDragged = false;
+				//
+				// float oldScrollX = getScrollX();
+				// Log.e("ad", "oldScroll == " + oldScrollX);
+				// Log.e("ad", "mLastMotionX == " + mLastMotionX);
+				// if (oldScrollX < 0 && mLastMotionX > mMenuView.getWidth())
+				// {//
+				// right
+				// Log.e("ad", "return ==left  isMenuOpen  true");
+				// return true;
+				// } else if (oldScrollX > 0 && mLastMotionX <
+				// mDetailView.getWidth()) { // left
+				// Log.e("ad", "return ==right  isMenuOpen  true");
+				// return true;
+				// }
+				//
+				// Log.e("ad", "onInterceptTouchEvent == ACTION_DOWN");
+				break;
 
+			case MotionEvent.ACTION_MOVE:
+				final float dx = x - mLastMotionX;
+				final float xDiff = Math.abs(dx);
+				final float yDiff = Math.abs(y - mLastMotionY);
+				if (xDiff > mTouchSlop && xDiff > yDiff) {
+					mIsBeingDragged = true;
+					mLastMotionX = x;
+				}
+				break;
+
+			}
 		}
 		return mIsBeingDragged;
 	}
@@ -313,6 +315,7 @@ public class SlidingView extends ViewGroup {
 		} else if (oldScrollX == menuWidth) {
 			smoothScrollTo(-menuWidth);
 		}
+		IMapApplication.isRight = false;
 	}
 
 	void smoothScrollTo(int dx) {

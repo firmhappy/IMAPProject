@@ -2,13 +2,15 @@ package com.imap.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 public class SlidingMenu extends RelativeLayout {
 
-	private View mDetailView;         //侧拉菜单View
-	private SlidingView mSlidingView;  //总View
+	private View mDetailView; // 侧拉菜单View
+	private SlidingView mSlidingView; // 总View
 
 	public SlidingMenu(Context context) {
 		super(context);
@@ -47,6 +49,8 @@ public class SlidingMenu extends RelativeLayout {
 	}
 
 	public void showRightView() {
+		IMapApplication.isRight = true;
 		mSlidingView.showRightView();
 	}
+
 }
