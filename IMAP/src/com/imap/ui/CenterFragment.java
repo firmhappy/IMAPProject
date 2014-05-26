@@ -8,6 +8,7 @@ import com.baidu.mapapi.map.LocationData;
 import com.baidu.mapapi.map.MapController;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationOverlay;
+import com.baidu.mapapi.map.OverlayItem;
 import com.baidu.mapapi.map.PopupClickListener;
 import com.baidu.mapapi.map.PopupOverlay;
 import com.baidu.mapapi.map.MyLocationOverlay.LocationMode;
@@ -15,6 +16,7 @@ import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.imap.R;
 import com.imap.util.BMapUtil;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -28,7 +30,7 @@ import android.widget.TextView;
 
 public class CenterFragment extends Fragment {
 
-	private Button showRight; // 侧拉按钮
+	private Button showRight,publish,bt; // 侧拉按钮
 
 	// 定位相关
 	private LocationClient mLocClient;
@@ -36,9 +38,10 @@ public class CenterFragment extends Fragment {
 	public MyLocationListenner myListener = new MyLocationListenner();
 
 	// 定位图层
-	LocationOverlay myLocationOverlay = null;
+	MyLocationOverlay myLocationOverlay = null;
 	// 弹出泡泡图层
 	private PopupOverlay pop = null;// 弹出泡泡图层，浏览节点时使用
+	private MyOverlay mOverlay;
 	private TextView popupText = null;// 泡泡view
 	private View viewCache = null;
 
@@ -46,7 +49,7 @@ public class CenterFragment extends Fragment {
 	boolean isFirstLoc = true;// 是否首次定位
 	// 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
 	// 如果不处理touch事件，则无需继承，直接使用MapView即可
-	MyLocationMapView mMapView = null; // 地图View
+	MapView mMapView = null; // 地图View
 	private MapController mMapController = null;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,15 +57,28 @@ public class CenterFragment extends Fragment {
 
 		View mView = inflater.inflate(R.layout.center, null);
 		showRight = (Button) mView.findViewById(R.id.setting_button);
+		bt=(Button) LayoutInflater.from(this.getActivity()).inflate(R.layout.demoview, null).findViewById(R.id.button1);
+		publish=(Button) mView.findViewById(R.id.publish_button);
+		//Publish Button的监听器，就先使用内部类的方式吧！
+		publish.setOnClickListener(new OnClickListener(){
 
+			@Override
+			public void onClick(View arg0) {
+				System.out.println("ADD");
+				GeoPoint p=new GeoPoint((int)(locData.latitude*1e6),(int)(locData.longitude*1e6));
+				Drawable mark = CenterFragment.this.getActivity().getResources()
+						.getDrawable(R.drawable.icon_gcoding);
+				OverlayItem item = new OverlayItem(p, "!!!", "???");
+				mOverlay.addItem(item);
+				mMapView.refresh();
+				
+			}});
 		// 地图初始化
-		mMapView = (MyLocationMapView) mView.findViewById(R.id.bmapView);
+		mMapView = (MapView) mView.findViewById(R.id.bmapView);
 		mMapController = mMapView.getController();
 		mMapView.getController().setZoom(14);
 		mMapView.getController().enableClick(true);
 		mMapView.setBuiltInZoomControls(true);
-		// 创建 弹出泡泡图层
-		createPaopao();
 
 		// 定位初始化
 		mLocClient = new LocationClient(getActivity());
@@ -76,7 +92,7 @@ public class CenterFragment extends Fragment {
 		mLocClient.start();
 
 		// 定位图层初始化
-		myLocationOverlay = new LocationOverlay(mMapView);
+		myLocationOverlay = new MyLocationOverlay(mMapView);
 		// 设置定位数据
 		myLocationOverlay.setData(locData);
 		// 添加定位图层
@@ -84,6 +100,7 @@ public class CenterFragment extends Fragment {
 		myLocationOverlay.enableCompass();
 		// 修改定位数据后刷新图层生效
 		mMapView.refresh();
+		initMyOverlay();
 		return mView;
 	}
 
@@ -102,20 +119,7 @@ public class CenterFragment extends Fragment {
 	/**
 	 * 创建弹出泡泡图层
 	 */
-	public void createPaopao() {
-		viewCache = getActivity().getLayoutInflater().inflate(
-				R.layout.custom_text_view, null);
-		popupText = (TextView) viewCache.findViewById(R.id.textcache);
-		// 泡泡点击响应回调
-		PopupClickListener popListener = new PopupClickListener() {
-			@Override
-			public void onClickedPopup(int index) {
-				Log.v("click", "clickapoapo");
-			}
-		};
-		pop = new PopupOverlay(mMapView, popListener);
-		MyLocationMapView.pop = pop;
-	}
+
 
 	@Override
 	public void onPause() {
@@ -192,17 +196,22 @@ public class CenterFragment extends Fragment {
 			super(mapView);
 		}
 
-		@Override
-		protected boolean dispatchTap() {
-			// 处理点击事件,弹出泡泡
-			popupText.setBackgroundResource(R.drawable.popup);
-			popupText.setText("我的位置");
-			pop.showPopup(BMapUtil.getBitmapFromView(popupText), new GeoPoint(
-					(int) (locData.latitude * 1e6),
-					(int) (locData.longitude * 1e6)), 8);
-			return true;
-		}
 
+	}
+	
+	//这个，应该是初始化自定义图层的
+	private void initMyOverlay() {
+		GeoPoint p = new GeoPoint((int) (37.872973 * 1e6),
+				(int) (112.603397 * 1e6));
+		Drawable mark = this.getResources()
+				.getDrawable(R.drawable.icon_gcoding);
+		OverlayItem item = new OverlayItem(p, "!!!", "???");
+		mOverlay = new MyOverlay(mark, mMapView);
+		MyOverlay.view = bt;
+		mMapView.getOverlays().add(mOverlay);
+		mMapView.refresh();
+		mOverlay.addItem(item);
+		mMapView.refresh();
 	}
 
 }
