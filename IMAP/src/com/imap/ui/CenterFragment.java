@@ -1,7 +1,5 @@
 package com.imap.ui;
 
-import java.util.ArrayList;
-
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
@@ -16,8 +14,7 @@ import com.baidu.mapapi.map.PopupOverlay;
 import com.baidu.mapapi.map.MyLocationOverlay.LocationMode;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.imap.R;
-import com.imap.bean.Message;
-import com.imap.bean.MyLinearLayout;
+import com.imap.location.MyOverlay;
 import com.imap.util.BMapUtil;
 
 import android.graphics.drawable.Drawable;
@@ -30,12 +27,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class CenterFragment extends Fragment {
 
-	private Button showRight, publish; // 侧拉按钮,发布按钮
+	private Button publish, bt;
+	private ImageView showRight;
 
 	// 定位相关
 	private LocationClient mLocClient;
@@ -44,39 +42,28 @@ public class CenterFragment extends Fragment {
 
 	// 定位图层
 	MyLocationOverlay myLocationOverlay = null;
+	// 弹出泡泡图层
+	private PopupOverlay pop = null;// 弹出泡泡图层，浏览节点时使用
 	private MyOverlay mOverlay;
+	private TextView popupText = null;// 泡泡view
+	private View viewCache = null;
+
 	// UI相关
 	boolean isFirstLoc = true;// 是否首次定位
+	// 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
+	// 如果不处理touch事件，则无需继承，直接使用MapView即可
 	MapView mMapView = null; // 地图View
 	private MapController mMapController = null;
-	public static ArrayList<Message> messages = new ArrayList<Message>();
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
 		View mView = inflater.inflate(R.layout.center, null);
-		showRight = (Button) mView.findViewById(R.id.setting_button);
+		showRight = (ImageView) mView.findViewById(R.id.setting_button);
+		bt = (Button) LayoutInflater.from(this.getActivity())
+				.inflate(R.layout.demoview, null).findViewById(R.id.button1);
 		publish = (Button) mView.findViewById(R.id.publish_button);
-		// Publish Button的监听器，就先使用内部类的方式吧！
-		publish.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View arg0) {
-				/*
-				 * 此处实际内容应该是跳转到信息发布的界面
-				 * 此处不进行任何实际修改
-				 */
-				GeoPoint p = new GeoPoint((int) (locData.latitude * 1e6),
-						(int) (locData.longitude * 1e6));
-				messages.add(new Message(p,"巴拉巴拉","菠萝菠萝蜜"));
-				CenterFragment.this.getActivity().getResources()
-						.getDrawable(R.drawable.icon_gcoding);
-				OverlayItem item = new OverlayItem(p, "!!!", "???");
-				mOverlay.addItem(item);
-				mMapView.refresh();
-
-			}
-		});
 		// 地图初始化
 		mMapView = (MapView) mView.findViewById(R.id.bmapView);
 		mMapController = mMapView.getController();
@@ -118,7 +105,28 @@ public class CenterFragment extends Fragment {
 				((SlidingActivity) getActivity()).showRight();
 			}
 		});
+
+		// Publish Button的监听器，就先使用内部类的方式吧！
+		publish.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				System.out.println("ADD");
+				GeoPoint p = new GeoPoint((int) (locData.latitude * 1e6),
+						(int) (locData.longitude * 1e6));
+				Drawable mark = CenterFragment.this.getActivity()
+						.getResources().getDrawable(R.drawable.icon_gcoding);
+				OverlayItem item = new OverlayItem(p, "!!!", "???");
+				mOverlay.addItem(item);
+				mMapView.refresh();
+
+			}
+		});
 	}
+
+	/**
+	 * 创建弹出泡泡图层
+	 */
 
 	@Override
 	public void onPause() {
@@ -188,27 +196,28 @@ public class CenterFragment extends Fragment {
 		}
 	}
 
+	// 继承MyLocationOverlay重写dispatchTap实现点击处理
+	public class LocationOverlay extends MyLocationOverlay {
+
+		public LocationOverlay(MapView mapView) {
+			super(mapView);
+		}
+
+	}
+
 	// 这个，应该是初始化自定义图层的
 	private void initMyOverlay() {
-		Drawable mark = this.getResources()
-				.getDrawable(R.drawable.icon_gcoding);
-		mOverlay = new MyOverlay(mark, mMapView,this.getActivity());
-		mMapView.getOverlays().add(mOverlay);
-		mMapView.refresh();
-		getMessages();
-		for (int i = 0; i < messages.size(); i++) {
-			OverlayItem item = new OverlayItem(messages.get(i).getP(), "!!!", "???");
-			mOverlay.addItem(item);
-		}
-		mMapView.refresh();
-	}
-	/*
-	 * getMessages()用于从服务器端获取全部message
-	 */
-	private void getMessages(){
 		GeoPoint p = new GeoPoint((int) (37.872973 * 1e6),
 				(int) (112.603397 * 1e6));
-		messages.add(new Message(p,"我是标题","我是内容"));
+		Drawable mark = this.getResources()
+				.getDrawable(R.drawable.icon_gcoding);
+		OverlayItem item = new OverlayItem(p, "!!!", "???");
+		mOverlay = new MyOverlay(mark, mMapView);
+		MyOverlay.setView(bt);
+		mMapView.getOverlays().add(mOverlay);
+		mMapView.refresh();
+		mOverlay.addItem(item);
+		mMapView.refresh();
 	}
 
 }

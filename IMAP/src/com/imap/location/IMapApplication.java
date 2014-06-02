@@ -1,4 +1,4 @@
-package com.imap.ui;
+package com.imap.location;
 
 import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.MKGeneralListener;
@@ -12,7 +12,7 @@ public class IMapApplication extends Application {
 
 	private static IMapApplication mInstance = null;
 	public boolean m_bKeyRight = true;
-	BMapManager mBMapManager = null;
+	public BMapManager mBMapManager = null;
 	//static boolean isRight = false;
 
 	@Override
@@ -39,7 +39,7 @@ public class IMapApplication extends Application {
 	}
 
 	// 常用事件监听，用来处理通常的网络错误，授权验证错误等
-	static class MyGeneralListener implements MKGeneralListener {
+	public static class MyGeneralListener implements MKGeneralListener {
 
 		@Override
 		public void onGetNetworkState(int iError) {

@@ -1,4 +1,4 @@
-package com.imap.ui;
+package com.imap.location;
 
 import android.content.Context;
 import android.util.AttributeSet;
