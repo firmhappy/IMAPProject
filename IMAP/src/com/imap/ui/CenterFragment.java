@@ -15,8 +15,10 @@ import com.baidu.mapapi.map.MyLocationOverlay.LocationMode;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 import com.imap.R;
 import com.imap.location.MyOverlay;
+import com.imap.publish.PublishActivity;
 import com.imap.util.BMapUtil;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -111,6 +113,11 @@ public class CenterFragment extends Fragment {
 
 			@Override
 			public void onClick(View arg0) {
+				
+				Intent intent = new Intent(getActivity(),PublishActivity.class);
+				startActivity(intent);
+				getActivity().overridePendingTransition(R.anim.in_from_down, R.anim.out_to_up);
+				/*这部分先注释掉了
 				System.out.println("ADD");
 				GeoPoint p = new GeoPoint((int) (locData.latitude * 1e6),
 						(int) (locData.longitude * 1e6));
@@ -119,7 +126,7 @@ public class CenterFragment extends Fragment {
 				OverlayItem item = new OverlayItem(p, "!!!", "???");
 				mOverlay.addItem(item);
 				mMapView.refresh();
-
+				*/
 			}
 		});
 	}

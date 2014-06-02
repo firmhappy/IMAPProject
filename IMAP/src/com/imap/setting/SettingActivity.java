@@ -14,8 +14,8 @@ import android.widget.Toast;
 
 public class SettingActivity extends Activity {
 	
-	private CompoundButton switchButton_message, switchButton_lock;
-	private ImageView imageView_back;
+	private CompoundButton switchButton_message, switchButton_lock;  //分别是接收推送和应用锁
+	private ImageView imageView_back;  //返回按钮
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
