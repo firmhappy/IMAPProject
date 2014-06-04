@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">IMAP</string>
+    <string name="publish_b">发送</string>
+    <string name="my_name">我的昵称</string>
+    <string name="my_publish">我发表的</string>
+    <string name="my_school">我的学校</string>
+    <string name="app_setting">设置</string>
+    <string name="app_exit">退出</string>
+    <string name="new_message">接收新消息提醒</string>
+    <string name="app_lock">应用锁</string>
+    <string name="app_feedback">意见反馈</string>
+    <string name="app_about">关于</string>
+    <string name="message_publish">发布新鲜事</string>
+    <string name="news_publish">匿名发布</string>
+</resources>

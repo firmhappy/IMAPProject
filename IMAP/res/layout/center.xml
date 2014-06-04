@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/head_title" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.baidu.mapapi.map.MapView
+            android:id="@+id/bmapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dip"
+            android:layout_alignBottom="@id/bmapView"
+            android:background="@drawable/head_blue_background"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/publish_button"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0"
+                android:layout_marginLeft="3dip"
+                android:layout_marginTop="3dip"
+                android:layout_marginBottom="3dip"
+                android:background="@drawable/publish_button_background"
+                android:text="@string/publish_b"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/setting_button"
+                android:layout_width="54dip"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/head_title_background"
+                android:clickable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/pop_menu" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

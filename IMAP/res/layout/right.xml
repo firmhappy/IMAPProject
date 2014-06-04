@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@android:color/black" >
+
+    <TextView
+        android:id="@+id/name_show"
+        android:layout_width="250dip"
+        android:layout_height="100dip"
+        android:background="@android:color/darker_gray"
+        android:gravity="center"
+        android:text="以后用来显示昵称"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/my_name"
+        android:layout_width="250dip"
+        android:layout_height="50dip"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/name_show"
+        android:layout_marginTop="2dip"
+        android:gravity="center"
+        android:text="@string/my_name"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/my_publish"
+        android:layout_width="250dip"
+        android:layout_height="50dip"
+        android:layout_below="@id/my_name"
+        android:layout_marginTop="2dip"
+        android:background="@android:color/darker_gray"
+        android:gravity="center"
+        android:text="@string/my_publish"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/my_school"
+        android:layout_width="250dip"
+        android:layout_height="50dip"
+        android:layout_below="@id/my_publish"
+        android:layout_marginTop="2dip"
+        android:background="@android:color/darker_gray"
+        android:gravity="center"
+        android:text="@string/my_school"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/app_setting"
+        android:layout_width="250dip"
+        android:layout_height="50dip"
+        android:layout_below="@id/my_school"
+        android:layout_marginTop="2dip"
+        android:background="@android:color/darker_gray"
+        android:gravity="center"
+        android:text="@string/app_setting"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/app_exit"
+        android:layout_width="100dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/app_setting"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10dip"
+        android:background="@color/exit_button_color"
+        android:gravity="center"
+        android:text="@string/app_exit"
+        android:textColor="@android:color/white" />
+
+</RelativeLayout>
