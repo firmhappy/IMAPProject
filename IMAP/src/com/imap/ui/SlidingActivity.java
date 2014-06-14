@@ -1,9 +1,7 @@
 package com.imap.ui;
 
-import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.SDKInitializer;
 import com.imap.R;
-import com.imap.location.IMapApplication;
-
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -22,14 +20,13 @@ public class SlidingActivity extends FragmentActivity {
 		 * 使用地图sdk前需先初始化BMapManager. BMapManager是全局的，可为多个MapView共用，它需要地图模块创建前创建，
 		 * 并在地图地图模块销毁后销毁，只要还有地图模块在使用，BMapManager就不应该销毁
 		 */
-		IMapApplication app = (IMapApplication) this.getApplication();
-		if (app.mBMapManager == null) {
-			app.mBMapManager = new BMapManager(getApplicationContext());
-			/**
-			 * 如果BMapManager没有初始化则初始化BMapManager
-			 */
-			app.mBMapManager.init(new IMapApplication.MyGeneralListener());
-		}
+		/*
+		 * IMapApplication app = (IMapApplication) this.getApplication(); if
+		 * (app.mBMapManager == null) { app.mBMapManager = new
+		 * BMapManager(getApplicationContext()); app.mBMapManager.init(new
+		 * IMapApplication.MyGeneralListener()); }
+		 */
+		//SDKInitializer.initialize(getApplicationContext());
 		setContentView(R.layout.main);
 
 		mSlidingMenu = (SlidingMenu) findViewById(R.id.slidingMenu);

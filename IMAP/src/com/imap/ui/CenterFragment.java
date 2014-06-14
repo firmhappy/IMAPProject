@@ -1,61 +1,66 @@
 package com.imap.ui;
 
+import java.util.ArrayList;
+
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.map.LocationData;
-import com.baidu.mapapi.map.MapController;
+import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BaiduMap.OnMapClickListener;
+import com.baidu.mapapi.map.BaiduMap.OnMarkerClickListener;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
+import com.baidu.mapapi.map.MapPoi;
+import com.baidu.mapapi.map.MapStatusUpdate;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
-import com.baidu.mapapi.map.MyLocationOverlay;
-import com.baidu.mapapi.map.OverlayItem;
-import com.baidu.mapapi.map.PopupClickListener;
-import com.baidu.mapapi.map.PopupOverlay;
-import com.baidu.mapapi.map.MyLocationOverlay.LocationMode;
-import com.baidu.platform.comapi.basestruct.GeoPoint;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.model.LatLng;
 import com.imap.R;
-import com.imap.location.MyOverlay;
-import com.imap.publish.PublishActivity;
-import com.imap.util.BMapUtil;
-
+import com.imap.bean.IMAPApplication;
+import com.imap.bean.Message;
+import com.imap.bean.MyLinearLayout;
+import com.imap.push.PublishActivity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-public class CenterFragment extends Fragment {
+public class CenterFragment extends Fragment implements OnMarkerClickListener{
 
 	private Button publish, bt;
 	private ImageView showRight;
 
 	// 定位相关
 	private LocationClient mLocClient;
-	private LocationData locData = null;
+	private MyLocationData locData;
 	public MyLocationListenner myListener = new MyLocationListenner();
-
-	// 定位图层
-	MyLocationOverlay myLocationOverlay = null;
-	// 弹出泡泡图层
-	private PopupOverlay pop = null;// 弹出泡泡图层，浏览节点时使用
-	private MyOverlay mOverlay;
-	private TextView popupText = null;// 泡泡view
-	private View viewCache = null;
 
 	// UI相关
 	boolean isFirstLoc = true;// 是否首次定位
-	// 地图相关，使用继承MapView的MyLocationMapView目的是重写touch事件实现泡泡处理
-	// 如果不处理touch事件，则无需继承，直接使用MapView即可
+
 	MapView mMapView = null; // 地图View
-	private MapController mMapController = null;
+	private BaiduMap mMap;
+	private ArrayList<Message> mMessages;
+
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		// 地图的注册
+		SDKInitializer.initialize(this.getActivity().getApplicationContext());
+	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -68,14 +73,35 @@ public class CenterFragment extends Fragment {
 
 		// 地图初始化
 		mMapView = (MapView) mView.findViewById(R.id.bmapView);
-		mMapController = mMapView.getController();
-		mMapView.getController().setZoom(14);
-		mMapView.getController().enableClick(true);
-		mMapView.setBuiltInZoomControls(true);
+		mMap = mMapView.getMap();
+		mMap.setMyLocationEnabled(true);
+		MapStatusUpdate msu = MapStatusUpdateFactory.newLatLngZoom(new LatLng(
+				39.963175, 116.400244), 13);
+		mMap.setMapStatus(msu);
+		
+		loadmyoverlay();
+		mMap.setOnMarkerClickListener(this);
+		//这个监听器是为了获取我想要的地址的经纬度，仅仅用来测试，日后，删掉！
+		mMap.setOnMapClickListener(new OnMapClickListener(){
+
+			@Override
+			public void onMapClick(LatLng arg0) {
+				System.out.println("Location:");
+				System.out.println(arg0.latitude);
+				System.out.println(arg0.longitude);
+				mMap.hideInfoWindow();
+				
+			}
+
+			@Override
+			public boolean onMapPoiClick(MapPoi arg0) {
+				// TODO Auto-generated method stub
+				return false;
+			}});
+		
 
 		// 定位初始化
 		mLocClient = new LocationClient(getActivity());
-		locData = new LocationData();
 		mLocClient.registerLocationListener(myListener);
 		LocationClientOption option = new LocationClientOption();
 		option.setOpenGps(true);// 打开gps
@@ -83,17 +109,7 @@ public class CenterFragment extends Fragment {
 		option.setScanSpan(1000);
 		mLocClient.setLocOption(option);
 		mLocClient.start();
-
-		// 定位图层初始化
-		myLocationOverlay = new MyLocationOverlay(mMapView);
-		// 设置定位数据
-		myLocationOverlay.setData(locData);
-		// 添加定位图层
-		mMapView.getOverlays().add(myLocationOverlay);
-		myLocationOverlay.enableCompass();
-		// 修改定位数据后刷新图层生效
-		mMapView.refresh();
-		initMyOverlay();
+		
 		return mView;
 	}
 
@@ -113,27 +129,18 @@ public class CenterFragment extends Fragment {
 
 			@Override
 			public void onClick(View arg0) {
-				
-				Intent intent = new Intent(getActivity(),PublishActivity.class);
+
+				Intent intent = new Intent(getActivity(), PublishActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putDouble("latitude", locData.latitude);
+				bundle.putDouble("longtitude", locData.longitude);
+				intent.putExtras(bundle);
 				startActivity(intent);
-				getActivity().overridePendingTransition(R.anim.in_from_down, R.anim.out_to_up);
-				/*这部分先注释掉了
-				System.out.println("ADD");
-				GeoPoint p = new GeoPoint((int) (locData.latitude * 1e6),
-						(int) (locData.longitude * 1e6));
-				Drawable mark = CenterFragment.this.getActivity()
-						.getResources().getDrawable(R.drawable.icon_gcoding);
-				OverlayItem item = new OverlayItem(p, "!!!", "???");
-				mOverlay.addItem(item);
-				mMapView.refresh();
-				*/
+				getActivity().overridePendingTransition(R.anim.in_from_down,
+						R.anim.out_to_up);
 			}
 		});
 	}
-
-	/**
-	 * 创建弹出泡泡图层
-	 */
 
 	@Override
 	public void onPause() {
@@ -143,7 +150,9 @@ public class CenterFragment extends Fragment {
 
 	@Override
 	public void onResume() {
+		//每次重新唤醒地图，就加载缓存
 		mMapView.onResume();
+		loadmyoverlay();
 		super.onResume();
 	}
 
@@ -152,15 +161,8 @@ public class CenterFragment extends Fragment {
 		// 退出时销毁定位
 		if (mLocClient != null)
 			mLocClient.stop();
-		mMapView.destroy();
+		mMapView.onDestroy();
 		super.onDestroy();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		mMapView.onSaveInstanceState(outState);
-
 	}
 
 	/**
@@ -170,30 +172,19 @@ public class CenterFragment extends Fragment {
 
 		@Override
 		public void onReceiveLocation(BDLocation location) {
-			if (location == null)
+			if (location == null || mMapView == null)
 				return;
-
-			locData.latitude = location.getLatitude();
-			locData.longitude = location.getLongitude();
-			// 如果不显示定位精度圈，将accuracy赋值为0即可
-			locData.accuracy = location.getRadius();
-			// 此处可以设置 locData的方向信息, 如果定位 SDK 未返回方向信息，用户可以自己实现罗盘功能添加方向信息。
-			locData.direction = location.getDerect();
-			// 更新定位数据
-			myLocationOverlay.setData(locData);
-			// 更新图层数据执行刷新后生效
-			mMapView.refresh();
-			// 是手动触发请求或首次定位时，移动到定位点
+			locData = new MyLocationData.Builder()
+					.latitude(location.getLatitude())
+					.longitude(location.getLongitude()).build();
+			mMap.setMyLocationData(locData);
 			if (isFirstLoc) {
-				// 移动地图到定位点
-				Log.d("LocationOverlay", "receive location, animate to it");
-				mMapController.animateTo(new GeoPoint(
-						(int) (locData.latitude * 1e6),
-						(int) (locData.longitude * 1e6)));
-				myLocationOverlay.setLocationMode(LocationMode.FOLLOWING);
+				isFirstLoc = false;
+				MapStatusUpdate msu = MapStatusUpdateFactory
+						.newLatLng(new LatLng(location.getLatitude(), location
+								.getLongitude()));
+				mMap.animateMapStatus(msu);
 			}
-			// 首次定位完成
-			isFirstLoc = false;
 		}
 
 		public void onReceivePoi(BDLocation poiLocation) {
@@ -202,29 +193,37 @@ public class CenterFragment extends Fragment {
 			}
 		}
 	}
-
-	// 继承MyLocationOverlay重写dispatchTap实现点击处理
-	public class LocationOverlay extends MyLocationOverlay {
-
-		public LocationOverlay(MapView mapView) {
-			super(mapView);
+	
+	/**
+	 * 根据缓存，加载Marker
+	 */
+	private void loadmyoverlay(){
+		mMap.clear();
+		mMessages=((IMAPApplication)this.getActivity().getApplication()).getMessages();
+		BitmapDescriptor bdA = BitmapDescriptorFactory
+				.fromResource(R.drawable.icon_gcoding);
+		OverlayOptions options;
+		for(int i=0;i<mMessages.size();i++){
+			Message message=mMessages.get(i);
+			System.out.println(message.toString());
+			options=new MarkerOptions().position(message.getP()).icon(bdA).title(i+"");
+			mMap.addOverlay(options);
 		}
-
 	}
 
-	// 这个，应该是初始化自定义图层的
-	private void initMyOverlay() {
-		GeoPoint p = new GeoPoint((int) (37.872973 * 1e6),
-				(int) (112.603397 * 1e6));
-		Drawable mark = this.getResources()
-				.getDrawable(R.drawable.icon_gcoding);
-		OverlayItem item = new OverlayItem(p, "!!!", "???");
-		mOverlay = new MyOverlay(mark, mMapView);
-		MyOverlay.setView(bt);
-		mMapView.getOverlays().add(mOverlay);
-		mMapView.refresh();
-		mOverlay.addItem(item);
-		mMapView.refresh();
+	/**
+	 * Marker的点击监听
+	 */
+	public boolean onMarkerClick(Marker arg0) {
+		MyLinearLayout info=new MyLinearLayout(this.getActivity());
+		Message message=mMessages.get(Integer.parseInt(arg0.getTitle()));
+		info.addMessage(message);
+		Point p=mMap.getProjection().toScreenLocation(arg0.getPosition());
+		p.y-=47;
+		InfoWindow infoWindow=new InfoWindow(info, mMap.getProjection().fromScreenLocation(p), null);
+		mMap.showInfoWindow(infoWindow);
+		return true;
 	}
-
+	
+	
 }

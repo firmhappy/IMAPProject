@@ -55,11 +55,10 @@
         android:smallScreens="true" />
 
     <application
-        android:name="com.imap.location.IMapApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.NoTitleBar" >
+        android:theme="@android:style/Theme.NoTitleBar" android:name=".bean.IMAPApplication">
         <activity android:name="com.imap.ui.SlidingActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -70,7 +69,7 @@
         <activity android:name="com.imap.setting.SettingActivity" >
         </activity>
         <activity
-            android:name="com.imap.publish.PublishActivity"
+            android:name=".push.PublishActivity"
             android:windowSoftInputMode="adjustUnspecified|adjustResize" >
         </activity>
 
